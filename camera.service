@@ -1,0 +1,11 @@
+[Unit]
+Description=Drone Camera Service
+After=network.target
+
+[Service]
+ExecStart=/srv/RCDroneCamera/env/bin/python /srv/RCDroneCamera/main.py
+User=root
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
