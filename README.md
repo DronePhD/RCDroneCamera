@@ -49,3 +49,31 @@ python main.py --stream-resolution 1280x720 --stream-url udp://<IP>:<PORT> --med
 
 Replace `<IP>` and `<PORT>` with the IP address and port number of the device that will receive the video stream.
 All of the parameters are optional. But if you want to change the default values, you need to provide them.
+
+## How to debug
+
+1. Connect to the RaspberryPi board
+2. Go to the project directory and activate root and run ipython
+
+```bash
+cd /srv/RCDroneCamera
+sudo su
+source venv/bin/activate
+ipython
+```
+
+3. Run the following code:
+
+```python
+from main import *
+
+mavlink_handler = MAVLinkHandler()
+mavlink_handler.setLevel(logging.INFO)
+logger.addHandler(mavlink_handler)
+with CameraService(VIDEO_STREAM_URL, (1280, 720), MEDIA_FOLDER) as camera:
+    RCService(CONNECTION_STRING, BAUD_RATE, camera).listen()
+    time.sleep(1000000)
+```
+
+This code will start the service and you will be able to see the logs in the console. Also, you can interact with the
+service using the RC controller. Or make changes in the code and see the results.
