@@ -1,13 +1,18 @@
 import logging
+import subprocess
 import time
 from datetime import datetime
 from enum import IntEnum
 
 import click
 import dronekit
+import gc
+import prctl
+import signal
+
 from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder, Quality
-from picamera2.outputs import FfmpegOutput
+from picamera2.outputs import FfmpegOutput, Output
 from pymavlink import mavutil
 
 # location of the Pixhawk6c serial port and baud rate for the connection.
@@ -20,7 +25,7 @@ MEDIA_FOLDER = "/srv/samba/share/"
 
 # URL for the video stream. It's a UDP stream from the Raspberry Pi to the GCS. The GCS can connect to it using
 # VLC or any other player that supports UDP streams.
-VIDEO_STREAM_URL = "udp://192.168.50.29:12345"
+VIDEO_STREAM_URL = "192.168.50.29:12345"
 
 
 class MAVLinkHandler(logging.Handler):
@@ -64,6 +69,71 @@ logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
 
+class GStreamerOutput(Output):
+    def __init__(self, output_filename):
+        super().__init__(pts=None)
+        self.gstreamer = None
+        self.output_filename = output_filename
+        self.host = output_filename.split(":")[0]
+        self.port = output_filename.split(":")[1]
+
+    def start(self):
+        general_options = [
+            "-v",
+            "fdsrc",
+            "!",
+        ]
+        video_input = [
+            "h264parse",
+            "!",
+        ]
+        video_encoder = [
+            "rtph264pay",
+            "config-interval=1",
+            "pt=35",
+            "!"
+        ]
+        video_sink = [
+            "udpsink",
+            f"host={self.host}",
+            f"port={self.port}",
+        ]
+        command = ['gst-launch-1.0'] + general_options + video_input + video_encoder + video_sink
+        # The preexec_fn is a slightly nasty way of ensuring GStreamer gets stopped if we quit
+        # without calling stop() (which is otherwise not guaranteed).
+        self.gstreamer = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            preexec_fn=lambda: prctl.set_pdeathsig(signal.SIGKILL)
+        )
+        super().start()
+
+    def stop(self):
+        super().stop()
+        if self.gstreamer is not None:
+            self.gstreamer.stdin.close()  # GStreamer needs this to shut down tidily
+            try:
+                self.gstreamer.terminate()
+            except Exception:
+                pass
+            self.gstreamer = None
+            # This seems to be necessary to get the subprocess to clean up fully.
+            gc.collect()
+
+    def outputframe(self, frame, keyframe=True, timestamp=None):
+        if self.recording and self.gstreamer:
+            # Handle the case where the GStreamer process has gone away for reasons of its own.
+            try:
+                self.gstreamer.stdin.write(frame)
+                self.gstreamer.stdin.flush()  # forces every frame to get timestamped individually
+            except Exception as e:  # presumably a BrokenPipeError? should we check explicitly?
+                self.gstreamer = None
+                if self.error_callback:
+                    self.error_callback(e)
+            else:
+                self.outputtimestamp(timestamp)
+
+
 class CameraService:
     def __init__(
             self,
@@ -89,7 +159,7 @@ class CameraService:
         self._stream_encoder = H264Encoder(repeat=True, iperiod=15)
         self._video_encoder = H264Encoder(10000000)
 
-        self._stream_output = FfmpegOutput(f"-f mpegts {video_stream_url}")
+        self._stream_output = GStreamerOutput(video_stream_url)
         self._video_output = None
 
         self.streaming = False
