@@ -1,5 +1,3 @@
-from src.mavlink_logging import MAVLinkHandlerfrom src.rc import MAVLinkHandlerfrom src.rc import RCServicefrom src.camera import CameraService
-
 # RCDroneCamera project
 
 This project is a service that connects RC controller with a camera via PX4 to control the camera and take photos,
