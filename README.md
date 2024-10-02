@@ -28,7 +28,7 @@ ssh admin@raspberrypi
 
 3. Enter the password: `admin`
 
-Code is located in the `/srv/RCDroneCamera` directory.
+Code is located in the `/home/admin/drone/RCDroneCamera` directory.
 
 ## How to run
 
@@ -36,7 +36,7 @@ Code is located in the `/srv/RCDroneCamera` directory.
 2. Go to the project directory and activate root
 
 ```bash
-cd /srv/RCDroneCamera
+cd /home/admin/drone/RCDroneCamera
 sudo su
 ```
 
@@ -56,7 +56,7 @@ All of the parameters are optional. But if you want to change the default values
 2. Go to the project directory and activate root and run ipython
 
 ```bash
-cd /srv/RCDroneCamera
+cd /home/admin/drone/RCDroneCamera
 sudo su
 source venv/bin/activate
 ipython
