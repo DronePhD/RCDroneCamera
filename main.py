@@ -69,13 +69,3 @@ def main(
 if __name__ == "__main__":
     main()
 
-    """
-        To run in ipython comment out the main function and run the following code in the ipython terminal.:
-        
-        mavlink_handler = MAVLinkHandler(CONNECTION_STRING, BAUD_RATE)
-        mavlink_handler.setLevel(logging.INFO)
-        logger.addHandler(mavlink_handler)
-        with CameraService(VIDEO_STREAM_URL, MEDIA_FOLDER, (1280, 720)) as camera:
-            RCService(CONNECTION_STRING, BAUD_RATE, camera).listen()
-            time.sleep(1000000)
-    """
