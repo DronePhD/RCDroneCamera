@@ -11,10 +11,10 @@ do
 done
 
 # set variables
-PROJECT_PATH=$(pwd)
-SERVER_USER="admin"
-SERVER_IP="raspberrypi"
-SERVER_PATH="/srv/RCDroneCamera/"
+SOURCE_FOLDER=$(pwd)
+REMOTE_USER="admin"
+REMOTE_HOST="raspberrypi"
+DESTINATION_FOLDER="/home/admin/drone"
 
 # generate ssh key if it doesn't exist
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
@@ -22,11 +22,10 @@ if [ ! -f ~/.ssh/id_rsa.pub ]; then
 fi
 
 # add ssh key to server if it doesn't exist
-ssh-copy-id -i ~/.ssh/id_rsa.pub "$SERVER_USER"@"$SERVER_IP"
+ssh-copy-id -i ~/.ssh/id_rsa.pub "$REMOTE_USER"@"$REMOTE_HOST"
 
 # copy the project to the server via ssh
-ssh "$SERVER_USER"@"$SERVER_IP" "sudo -S rm -r $SERVER_PATH"
-scp -r "$PROJECT_PATH" "$SERVER_USER"@"$SERVER_IP":"$SERVER_PATH"
+rsync -avz -e ssh $SOURCE_FOLDER $REMOTE_USER@$REMOTE_HOST:$DESTINATION_FOLDER
 
 # run init_project.sh on the server
-ssh "$SERVER_USER"@"$SERVER_IP" "cd $SERVER_PATH && sudo -S sh init_project.sh -i $install"
+ssh "$REMOTE_USER"@"$REMOTE_HOST" "cd $DESTINATION_FOLDER/RCDroneCamera && sudo -S sh init_project.sh -i $install"

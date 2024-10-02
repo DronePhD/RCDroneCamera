@@ -1,3 +1,5 @@
+from src.mavlink_logging import MAVLinkHandlerfrom src.rc import MAVLinkHandlerfrom src.rc import RCServicefrom src.camera import CameraService
+
 # RCDroneCamera project
 
 This project is a service that connects RC controller with a camera via PX4 to control the camera and take photos,
@@ -67,10 +69,10 @@ ipython
 ```python
 from main import *
 
-mavlink_handler = MAVLinkHandler()
+mavlink_handler = MAVLinkHandler(CONNECTION_STRING, BAUD_RATE)
 mavlink_handler.setLevel(logging.INFO)
 logger.addHandler(mavlink_handler)
-with CameraService(VIDEO_STREAM_URL, (1280, 720), MEDIA_FOLDER) as camera:
+with CameraService(VIDEO_STREAM_URL, MEDIA_FOLDER, (1280, 720)) as camera:
     RCService(CONNECTION_STRING, BAUD_RATE, camera).listen()
     time.sleep(1000000)
 ```

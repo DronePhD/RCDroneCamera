@@ -19,14 +19,12 @@ if [ "$install" = true ]; then
 
     # Create a virtual environment from global python environment
     python -m venv venv --system-site-packages
-    source venv/bin/activate
+    . ./venv/bin/activate
 
     # install dependencies
     pip install -r requirements.txt
-fi
 
-# copy camera.service to /etc/systemd/system and enable it if it doesn't exist
-if [ ! -f /etc/systemd/system/camera.service ]; then
+    # copy camera.service to /etc/systemd/system and enable it
     sudo cp camera.service /etc/systemd/system/
     sudo systemctl enable camera.service
 fi
