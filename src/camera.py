@@ -75,7 +75,7 @@ class CameraService:
         Start the video stream to the specified URL using the lores stream.
         """
         if self.streaming:
-            logger.error("Stream is already active")
+            logger.warning("Stream is already active")
             return
 
         # Check if WFB is running. If not, the stream won't work.
@@ -92,7 +92,7 @@ class CameraService:
         Stop the video stream
         """
         if not self.streaming:
-            logger.error("Stream is not active")
+            logger.warning("Stream is not active")
             return
 
         self._picam2.stop_encoder(self._stream_encoder)
@@ -104,7 +104,7 @@ class CameraService:
         Start recording video to a file using the main encoder and the high quality settings.
         """
         if self.video_active:
-            logger.error("Video is already active")
+            logger.warning("Video is already active")
             return
 
         self._video_output = FfmpegOutput(self._generate_filename("video", "mp4"))
@@ -117,7 +117,7 @@ class CameraService:
         Stop the video recording
         """
         if not self.video_active:
-            logger.error("Video is not active")
+            logger.warning("Video is not active")
             return
 
         self._picam2.stop_encoder(self._video_encoder)

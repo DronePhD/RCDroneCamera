@@ -133,7 +133,7 @@ class RCService:
             self._camera.stop_video()
             logger.info("Stopped recording video")
         else:
-            logger.error(f"Invalid RC value for video channel: {rc_value}")
+            logger.warning(f"Invalid RC value for video channel: {rc_value}")
 
     @staticmethod
     def _translate_rc_value(rc_value: int) -> RCValueEnum:
