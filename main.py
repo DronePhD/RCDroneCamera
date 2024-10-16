@@ -21,7 +21,6 @@ MEDIA_FOLDER = "/srv/samba/share/"
 # VLC or any other player that supports UDP streams.
 VIDEO_STREAM_URL = "192.168.50.29:12345"
 
-
 # Set up logging
 logger = logging.getLogger("camera")
 logger.setLevel(logging.DEBUG)
@@ -63,9 +62,12 @@ def main(
     stream_resolution = tuple(map(int, stream_resolution.split("x")))
     with CameraService(stream_url, media_folder, stream_resolution) as camera:
         RCService(drone_connection, drone_baud_rate, camera).listen()
-        time.sleep(1000000)  # Run forever (realistically, until the battery runs out)
+
+        # Health check for the WFB service
+        while True:
+            camera.wfb_running = os.system("systemctl is-active --quiet wifibroadcast@drone") == 0
+            time.sleep(2)  # Run forever (realistically, until the battery runs out)
 
 
 if __name__ == "__main__":
     main()
-

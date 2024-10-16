@@ -1,5 +1,4 @@
 import logging
-import os
 from datetime import datetime
 
 from picamera2 import Picamera2
@@ -39,8 +38,9 @@ class CameraService:
         self._stream_output = GStreamerOutput(video_stream_url)
         self._video_output = None
 
-        self.streaming = False
-        self.video_active = False
+        self._wfb_running = True
+        self._streaming = False
+        self._video_active = False
 
         self._media_folder = media_folder
 
@@ -58,9 +58,9 @@ class CameraService:
         and closes the Picamera2, releasing the resources.
         """
         self._picam2.close()
-        if self.streaming:
+        if self._streaming:
             self.stop_stream()
-        if self.video_active:
+        if self._video_active:
             self.stop_video()
 
         if exc_type:
@@ -70,58 +70,78 @@ class CameraService:
         logger.info("Camera service stopped")
         return True
 
+    @property
+    def streaming(self) -> bool:
+        return self._streaming
+
+    @property
+    def video_active(self) -> bool:
+        return self._video_active
+
+    @property
+    def wfb_running(self) -> bool:
+        return self._wfb_running
+
+    @wfb_running.setter
+    def wfb_running(self, value: bool) -> None:
+        if value != self._wfb_running:
+            if value is False and self._streaming:
+                logger.warning("WFB service stopped while streaming")
+            logger.info(f"WFB service {'started' if value else 'stopped'}")
+        self._wfb_running = value
+
     def start_stream(self):
         """
         Start the video stream to the specified URL using the lores stream.
         """
-        if self.streaming:
+        if self._streaming:
             logger.warning("Stream is already active")
             return
 
         # Check if WFB is running. If not, the stream won't work.
-        if os.system("systemctl is-active --quiet wifibroadcast@drone") != 0:
-            logger.error("Wifibroadcast service is not running")
+        if not self._wfb_running:
+            logger.error("WFB service is not running")
             return
 
         self._picam2.start_encoder(self._stream_encoder, self._stream_output, name="lores", quality=Quality.MEDIUM)
-        self.streaming = True
+        self._streaming = True
         logger.debug(f"Started streaming to {self._stream_output.output_filename}")
 
     def stop_stream(self):
         """
         Stop the video stream
         """
-        if not self.streaming:
+        if not self._streaming:
             logger.warning("Stream is not active")
             return
 
         self._picam2.stop_encoder(self._stream_encoder)
-        self.streaming = False
+        self._streaming = False
         logger.debug(f"Stopped streaming to {self._stream_output.output_filename}")
 
     def start_video(self):
         """
         Start recording video to a file using the main encoder and the high quality settings.
         """
-        if self.video_active:
+        if self._video_active:
             logger.warning("Video is already active")
             return
 
         self._video_output = FfmpegOutput(self._generate_filename("video", "mp4"))
         self._picam2.start_encoder(self._video_encoder, self._video_output, quality=Quality.VERY_HIGH)
-        self.video_active = True
+        self._video_active = True
         logger.debug(f"Started recording video to {self._video_output.output_filename}")
 
     def stop_video(self):
         """
         Stop the video recording
         """
-        if not self.video_active:
+        if not self._video_active:
             logger.warning("Video is not active")
             return
 
         self._picam2.stop_encoder(self._video_encoder)
-        self.video_active = False
+        self._video_active = False
         logger.debug(f"Stopped recording video to {self._video_output.output_filename}")
         self._video_output = None
 
