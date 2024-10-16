@@ -87,11 +87,11 @@ class RCService:
         logger.debug(f"Vehicle armed: {value}")
 
         if value is True:
+            logger.info("Starting stream")
             self._camera.start_stream()
-            logger.info("Started stream")
         else:
+            logger.info("Stopping stream")
             self._camera.stop_stream()
-            logger.info("Stopped stream")
 
     def _handle_rc_change(self, channel: str, rc_value: RCValueEnum) -> None:
         """

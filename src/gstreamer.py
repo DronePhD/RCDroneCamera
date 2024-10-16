@@ -21,24 +21,27 @@ class GStreamerOutput(Output):
 
     def start(self):
         general_options = [
-            "-v",
             "fdsrc",
             "!",
         ]
         video_input = [
             "h264parse",
+            "disable-passthrough=true",
             "!",
         ]
         video_encoder = [
             "rtph264pay",
             "config-interval=1",
             "pt=35",
+            "mtu=1400",
+            "aggregate-mode=zero-latency",
             "!"
         ]
         video_sink = [
             "udpsink",
             f"host={self.host}",
             f"port={self.port}",
+            "sync=false",
         ]
         command = ['gst-launch-1.0'] + general_options + video_input + video_encoder + video_sink
         # The preexec_fn is a slightly nasty way of ensuring GStreamer gets stopped if we quit

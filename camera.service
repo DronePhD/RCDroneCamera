@@ -3,7 +3,7 @@ Description=Drone Camera Service
 After=network.target
 
 [Service]
-ExecStart=/home/admin/drone/RCDroneCamera/venv/bin/python /home/admin/drone/RCDroneCamera/main.py
+ExecStart=/home/admin/drone/RCDroneCamera/venv/bin/python /home/admin/drone/RCDroneCamera/main.py --stream-url=127.0.0.1:5602 --stream-resolution=854x480
 User=root
 Restart=always
 

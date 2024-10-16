@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime
 
 from picamera2 import Picamera2
@@ -33,7 +34,7 @@ class CameraService:
         self._picam2.configure(video_config)
 
         self._stream_encoder = H264Encoder(repeat=True, iperiod=15)
-        self._video_encoder = H264Encoder(10000000)
+        self._video_encoder = H264Encoder()
 
         self._stream_output = GStreamerOutput(video_stream_url)
         self._video_output = None
@@ -77,7 +78,12 @@ class CameraService:
             logger.error("Stream is already active")
             return
 
-        self._picam2.start_encoder(self._stream_encoder, self._stream_output, name="lores")
+        # Check if WFB is running. If not, the stream won't work.
+        if os.system("systemctl is-active --quiet wifibroadcast@drone") != 0:
+            logger.error("Wifibroadcast service is not running")
+            return
+
+        self._picam2.start_encoder(self._stream_encoder, self._stream_output, name="lores", quality=Quality.MEDIUM)
         self.streaming = True
         logger.debug(f"Started streaming to {self._stream_output.output_filename}")
 
