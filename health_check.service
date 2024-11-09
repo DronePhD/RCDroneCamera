@@ -1,0 +1,11 @@
+[Unit]
+Description=Drone Health Check
+After=network.target
+
+[Service]
+ExecStart=/home/admin/drone/RCDroneCamera/venv/bin/python /home/admin/drone/RCDroneCamera/health_check.py
+User=root
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

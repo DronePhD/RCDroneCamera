@@ -5,6 +5,7 @@ from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import FfmpegOutput
 
+from src import buzzer
 from src.gstreamer import GStreamerOutput
 
 logger = logging.getLogger("camera")
@@ -50,6 +51,7 @@ class CameraService:
         """
         self._picam2.start()
         logger.info("Camera service started")
+        buzzer.camera_buzz()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

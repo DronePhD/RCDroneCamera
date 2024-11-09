@@ -3,6 +3,7 @@ from enum import IntEnum
 
 import dronekit
 
+from src import buzzer
 from src.camera import CameraService
 
 logger = logging.getLogger("camera")
@@ -46,6 +47,7 @@ class RCService:
         self._vehicle.add_attribute_listener("channels", self._channel_observer)
         self._vehicle.add_attribute_listener("armed", self._arm_observer)
         logger.info("Listening for RC events")
+        buzzer.rc_buzz()
         return self
 
     def close(self) -> None:
@@ -127,10 +129,10 @@ class RCService:
         :param rc_value: Value of the channel. Can be LOW or HIGH,
         """
         if rc_value == RCValueEnum.HIGH:
-            self._camera.start_video()
+            self._camera.start_stream()
             logger.info("Started recording video")
         elif rc_value == RCValueEnum.LOW:
-            self._camera.stop_video()
+            self._camera.stop_stream()
             logger.info("Stopped recording video")
         else:
             logger.warning(f"Invalid RC value for video channel: {rc_value}")

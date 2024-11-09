@@ -30,7 +30,7 @@ console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-log_directory = '/var/log/camera'
+log_directory = "/var/log/camera"
 os.makedirs(log_directory, exist_ok=True)
 filename = f"camera_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 file_handler = logging.FileHandler(os.path.join(log_directory, filename))

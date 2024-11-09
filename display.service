@@ -1,0 +1,11 @@
+[Unit]
+Description=Camera Stream Info Service
+After=network.target
+
+[Service]
+ExecStart=/home/rock/.pyenv/versions/3.12.7/envs/RCDroneCamera/bin/python /home/rock/drone/RCDroneCamera/wfb_client.py
+User=root
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

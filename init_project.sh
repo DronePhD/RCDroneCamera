@@ -67,14 +67,20 @@ EOF
 
     # copy camera.service to /etc/systemd/system and enable it
     sudo cp camera.service /etc/systemd/system/
+    sudo cp health_check.service /etc/systemd/system/
     sudo systemctl enable camera.service
+    sudo systemctl enable health_check.service
     sudo systemctl enable wifibroadcast
     sudo systemctl enable wifibroadcast@drone
 fi
 
 # restart the camera service
 sudo cp camera.service /etc/systemd/system/
+sudo cp health_check.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl restart camera
 echo "Restarted camera"
 sudo systemctl status camera
+sudo systemctl restart health_check
+echo "Restarted health_check"
+sudo systemctl status health_check

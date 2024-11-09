@@ -12,9 +12,9 @@ done
 
 # set variables
 SOURCE_FOLDER=$(pwd)
-REMOTE_USER="admin"
-REMOTE_HOST="raspberrypi"
-DESTINATION_FOLDER="/home/admin/drone"
+REMOTE_USER="rock"
+REMOTE_HOST="rock-5b.local"
+DESTINATION_FOLDER="/home/rock/drone"
 
 # generate ssh key if it doesn't exist
 if [ ! -f ~/.ssh/id_rsa.pub ]; then
@@ -28,4 +28,4 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub "$REMOTE_USER"@"$REMOTE_HOST"
 rsync -avz -e ssh --exclude='.venv' $SOURCE_FOLDER $REMOTE_USER@$REMOTE_HOST:$DESTINATION_FOLDER
 
 # run init_project.sh on the server
-ssh "$REMOTE_USER"@"$REMOTE_HOST" "cd $DESTINATION_FOLDER/RCDroneCamera && sudo -S sh init_project.sh -i $install"
+ssh "$REMOTE_USER"@"$REMOTE_HOST" "cd $DESTINATION_FOLDER/RCDroneCamera && sudo -S sh init_gs.sh -i $install"

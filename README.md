@@ -3,7 +3,7 @@
 This project is a service that connects RC controller with a camera via PX4 to control the camera and take photos,
 videos, and stream video.
 
-## How to deploy
+## How to deploy Drone
 
 Run the following command:
 
@@ -17,6 +17,16 @@ You may be asked to enter your password to install python and other dependencies
 password and press enter.
 
 Deployment is possible only from the local network with Raspberry Pi connected to the same network.
+
+## How to deploy Ground Station
+
+Run the following command:
+
+```bash
+sh deploy_gs.sh -i <true|false>
+```
+It will deploy the ground station on the Radxa Rock 5B board. That includes displaying the video stream stats and
+passing video stream to the connected device.
 
 ## How to connect to the RaspberryPi board
 
