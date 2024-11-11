@@ -8,7 +8,7 @@ videos, and stream video.
 Run the following command:
 
 ```bash
-sh deploy.sh -i <true|false>
+sh deploy_drone.sh -i <true|false>
 ```
 
 The `-i` flag is optional. If it is set to `true`, the script will install python and other dependencies. Otherwise, it
@@ -54,7 +54,7 @@ sudo su
 
 ```bash
 source venv/bin/activate
-python main.py --stream-resolution 1280x720 --stream-url udp://<IP>:<PORT> --media-folder /srv/samba/shared --drone-connection /dev/serial0 --drone-baud-rate 921600
+python drone.py --stream-resolution 1280x720 --stream-url udp://<IP>:<PORT> --media-folder /srv/samba/shared --drone-connection /dev/serial0 --drone-baud-rate 921600
 ```
 
 Replace `<IP>` and `<PORT>` with the IP address and port number of the device that will receive the video stream.
@@ -75,7 +75,7 @@ ipython
 3. Run the following code:
 
 ```python
-from main import *
+from drone import *
 
 mavlink_handler = MAVLinkHandler(CONNECTION_STRING, BAUD_RATE)
 mavlink_handler.setLevel(logging.INFO)

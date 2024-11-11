@@ -213,7 +213,7 @@ class DataDisplay:
         screens[-1].next_screen = self.current_screen
 
         self._data = {}
-        self._display = OLED0in95RGB()
+        self._thread_active = True
 
     @property
     def data(self):
@@ -228,14 +228,20 @@ class DataDisplay:
 
     def start(self):
         thread = threading.Thread(target=self._refresh_loop)
+        logging.info("Starting the display loop")
         thread.start()
+        return self
+
+    def stop(self):
+        self._thread_active = False
+        logging.info("Stopping the display loop")
 
     def _refresh_loop(self):
-        logging.info("Starting the display loop")
-        while True:
-            image = self.current_screen.draw(self.data)
-            self._display.show_image(self._display.get_buffer(image))
-            time.sleep(0.05)
+        with OLED0in95RGB() as display:
+            while self._thread_active:
+                image = self.current_screen.draw(self.data)
+                display.show_image(display.get_buffer(image))
+                time.sleep(0.05)
 
 
 if __name__ == "__main__":
@@ -254,8 +260,8 @@ if __name__ == "__main__":
             "snr": {"min": 16.0, "avg": 23.0, "max": 27.5}
         }
     }
-    display = DataDisplay()
-    display.data = test_data
-    display.next_screen()
-    display.next_screen()
-    display.next_screen()
+    d = DataDisplay()
+    d.data = test_data
+    d.next_screen()
+    d.next_screen()
+    d.next_screen()

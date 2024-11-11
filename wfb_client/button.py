@@ -24,15 +24,22 @@ class NextButtonListener:
             },
         )
         self.display = display
+        self._thread_active = True
 
     def start(self):
         thread = threading.Thread(target=self._track_push)
+        logging.info("Starting the button listener thread")
         thread.start()
+
+    def stop(self):
+        self._thread_active = False
+        self.gpio.release()
+        logging.info("Stopping the button listener thread")
 
     def _track_push(self):
         logging.info("Listening for button press")
         state = self.gpio.get_value(self.PIN)
-        while True:
+        while self._thread_active:
             value = self.gpio.get_value(self.PIN)
             if value == Value.ACTIVE and state == Value.INACTIVE:
                 logging.info("Button pressed")
@@ -41,6 +48,3 @@ class NextButtonListener:
             elif value == Value.INACTIVE:
                 state = Value.INACTIVE
             time.sleep(0.05)
-
-    def __del__(self):
-        self.gpio.release()

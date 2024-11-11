@@ -129,10 +129,10 @@ class RCService:
         :param rc_value: Value of the channel. Can be LOW or HIGH,
         """
         if rc_value == RCValueEnum.HIGH:
-            self._camera.start_stream()
+            self._camera.start_video()
             logger.info("Started recording video")
         elif rc_value == RCValueEnum.LOW:
-            self._camera.stop_stream()
+            self._camera.stop_video()
             logger.info("Stopped recording video")
         else:
             logger.warning(f"Invalid RC value for video channel: {rc_value}")

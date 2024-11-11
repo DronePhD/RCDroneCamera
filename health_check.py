@@ -6,12 +6,14 @@ from enum import StrEnum
 
 import psutil
 
-log_directory = "/var/log/camera"
+log_directory = "/var/log/health_check"
+shared_directory = "/srv/samba/share/logs/health_check"
 os.makedirs(log_directory, exist_ok=True)
+os.makedirs(shared_directory, exist_ok=True)
 filename = f"health_check_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
 file_columns = (
-    "timestamp",
+    "datetime",
     "cpu_percent",
     "memory_percent",
     "camera_cpu_percent",
@@ -19,6 +21,8 @@ file_columns = (
     "wfb_cpu_percent",
     "wfb_memory",
     "temperature",
+    "cpu_clock",
+    "cpu_voltage",
     "under_voltage",
     "arm_freq_capped",
     "throttled",
@@ -39,6 +43,8 @@ def log_health() -> tuple:
     memory_percent = psutil.virtual_memory().percent
     temperature = psutil.sensors_temperatures().get("cpu_thermal")
     temperature = temperature[0].current if temperature else None
+    cpu_clock = psutil.cpu_freq().current / 1000
+    cpu_voltage = os.popen("vcgencmd measure_volts core").read().strip().split("=")[1]
 
     # Check how many resources the camera.service is using
     camera_cpu_percent, camera_memory = _check_pid("camera")
@@ -47,7 +53,7 @@ def log_health() -> tuple:
     wfb_cpu_percent, wfb_memory = _check_pid("wifibroadcast@drone")
 
     return (
-        datetime.now().timestamp(),
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         cpu_percent,
         memory_percent,
         camera_cpu_percent,
@@ -55,6 +61,8 @@ def log_health() -> tuple:
         wfb_cpu_percent,
         wfb_memory,
         temperature,
+        cpu_clock,
+        cpu_voltage,
         *_check_if_throttled(),
     )
 
@@ -124,10 +132,13 @@ def _check_if_throttled() -> list[bool]:
 
 
 if __name__ == "__main__":
-    with open(os.path.join(log_directory, filename), "a") as file:
+    with (open(os.path.join(log_directory, filename), "a") as file,
+          open(os.path.join(shared_directory, filename), "a") as shared_file):
         file.write(",".join(file_columns) + "\n")
+        shared_file.write(",".join(file_columns) + "\n")
         while True:
             data = log_health()
             # Append the data to the csv file
             file.write(",".join(map(str, data)) + "\n")
+            shared_file.write(",".join(map(str, data)) + "\n")
             time.sleep(.2)

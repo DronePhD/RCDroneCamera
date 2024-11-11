@@ -1,6 +1,7 @@
 import time
 
 import gpiod
+import logging
 import spidev
 from gpiod.line import Direction, Value
 
@@ -49,6 +50,8 @@ SET_V_VOLTAGE = 0xBE
 
 OLED_WIDTH = 96
 OLED_HEIGHT = 64
+
+logger = logging.getLogger("display")
 
 
 class DisplayController:
@@ -117,9 +120,19 @@ class DisplayController:
 class OLED0in95RGB:
     def __init__(self):
         self.display = DisplayController()
-        self.init_display()
         self.width = OLED_WIDTH
         self.height = OLED_HEIGHT
+
+    def __enter__(self):
+        logging.info("Starting the display")
+        self.init_display()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.clear()
+        self.display.module_exit()
+        self.display.gpio.release()
+        logging.info("Stopping the display")
 
     def init_display(self):
         if self.display.module_init() != 0:

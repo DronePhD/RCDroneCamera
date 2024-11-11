@@ -27,5 +27,5 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub "$REMOTE_USER"@"$REMOTE_HOST"
 # copy the project to the server via ssh except for the .venv folder
 rsync -avz -e ssh --exclude='.venv' $SOURCE_FOLDER $REMOTE_USER@$REMOTE_HOST:$DESTINATION_FOLDER
 
-# run init_project.sh on the server
+# run init_drone.sh on the server
 ssh "$REMOTE_USER"@"$REMOTE_HOST" "cd $DESTINATION_FOLDER/RCDroneCamera && sudo -S sh init_gs.sh -i $install"

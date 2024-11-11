@@ -37,6 +37,12 @@ file_handler = logging.FileHandler(os.path.join(log_directory, filename))
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
+shared_directory = "/srv/samba/share/logs/camera"
+os.makedirs(shared_directory, exist_ok=True)
+shared_file_handler = logging.FileHandler(os.path.join(shared_directory, filename))
+shared_file_handler.setFormatter(formatter)
+logger.addHandler(shared_file_handler)
+
 
 @click.command()
 @click.option("--stream-resolution", default="1280x720", help="Resolution for the stream")
