@@ -39,7 +39,7 @@ class NextButtonListener:
     def _track_push(self):
         logging.info("Listening for button press")
         state = self.gpio.get_value(self.PIN)
-        while self._thread_active:
+        while self._thread_active and self.display.active:
             value = self.gpio.get_value(self.PIN)
             if value == Value.ACTIVE and state == Value.INACTIVE:
                 logging.info("Button pressed")

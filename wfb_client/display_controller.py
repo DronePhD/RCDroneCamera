@@ -57,11 +57,9 @@ logger = logging.getLogger("display")
 class DisplayController:
     RST_PIN_NUM = 15
     DC_PIN_NUM = 17
-    SPI_FREQ = 10000000
+    SPI_FREQ = 32_000_000  # 32 MHz
 
     def __init__(self):
-        self.OUTPUT = True
-        self.SPEED = self.SPI_FREQ
         self.spi = spidev.SpiDev(0, 0)
 
         self.gpio = gpiod.request_lines(
@@ -93,12 +91,9 @@ class DisplayController:
     def DC_PIN(self, value):
         self.gpio.set_value(self.DC_PIN_NUM, value)
 
-    def write_byte(self, data):
-        self.spi.writebytes([data[0]])
-
     def module_init(self):
         self.RST_PIN = Value.INACTIVE
-        self.spi.max_speed_hz = self.SPEED
+        self.spi.max_speed_hz = self.SPI_FREQ
         self.spi.mode = 0b11
         self.DC_PIN = Value.ACTIVE
         return 0
@@ -110,11 +105,11 @@ class DisplayController:
 
     def command(self, cmd):
         self.DC_PIN = Value.INACTIVE
-        self.write_byte([cmd])
+        self.spi.writebytes([cmd])
 
     def data(self, data):
         self.DC_PIN = Value.ACTIVE
-        self.write_byte([data])
+        self.spi.writebytes2(data)
 
 
 class OLED0in95RGB:
@@ -220,6 +215,10 @@ class OLED0in95RGB:
         self.display.command(SET_ROW_ADDRESS)
         self.display.command(0)  # page start address
         self.display.command(self.height - 1)  # page end address
+
+        # Collect all pixels before sending them to the display
+        pixels = list()
         for i in range(0, self.height):
             for j in range(0, self.width * 2):
-                self.display.data(buff[j + self.width * 2 * i])
+                pixels.append(buff[j + self.width * 2 * i])
+        self.display.data(pixels)

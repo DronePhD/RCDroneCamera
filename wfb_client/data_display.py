@@ -3,6 +3,7 @@ import logging
 import os
 import threading
 import time
+from collections import deque
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -204,6 +205,9 @@ class AntennaScreen(DataScreen):
 
 
 class DataDisplay:
+    MAX_PLOT_SIZE = 50
+    FRAME_RATE = 30
+
     def __init__(self):
         screens = [OverviewScreen(), PacketScreen(), FlowScreen(), AntennaScreen()]
         self.current_screen = screens[0]
@@ -213,7 +217,8 @@ class DataDisplay:
         screens[-1].next_screen = self.current_screen
 
         self._data = {}
-        self._thread_active = True
+        self._plot = deque(maxlen=self.MAX_PLOT_SIZE)
+        self.active = True
 
     @property
     def data(self):
@@ -222,6 +227,17 @@ class DataDisplay:
     @data.setter
     def data(self, value: dict):
         self._data = value
+
+    @property
+    def plot(self):
+        return self._plot
+
+    @plot.setter
+    def plot(self, value):
+        """
+        Append value to the end of the plot list. Pull the first value from plot list if length exceeds MAX_PLOT_SIZE
+        """
+        self._plot.append(value)
 
     def next_screen(self):
         self.current_screen = next(self.current_screen)
@@ -233,15 +249,15 @@ class DataDisplay:
         return self
 
     def stop(self):
-        self._thread_active = False
+        self.active = False
         logging.info("Stopping the display loop")
 
     def _refresh_loop(self):
         with OLED0in95RGB() as display:
-            while self._thread_active:
+            while self.active:
                 image = self.current_screen.draw(self.data)
                 display.show_image(display.get_buffer(image))
-                time.sleep(0.05)
+                time.sleep(1 / self.FRAME_RATE)
 
 
 if __name__ == "__main__":

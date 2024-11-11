@@ -110,14 +110,25 @@ class DisplayAntennaStatsClientFactory(ReconnectingClientFactory):
         return packets
 
 
-def main():
+def main(display: DataDisplay):
     logging.info("Starting the client")
-    display = DataDisplay()
-    display.start()
-    NextButtonListener(display).start()
     reactor.connectTCP("127.0.0.1", 8003, DisplayAntennaStatsClientFactory(display))
 
 
+def abort_on_crash(display: DataDisplay):
+    def abort_on_crash_inner(failure, *args, **kwargs):
+        if isinstance(failure, defer.FirstError):
+            failure = failure.value.subFailure
+        logger.error(failure.getTraceback())
+        reactor.stop()
+        display.stop()
+
+    return abort_on_crash_inner
+
+
 if __name__ == "__main__":
-    reactor.callWhenRunning(lambda: defer.maybeDeferred(main).addErrback(lambda f: logger.error(f.getTraceback())))
+    d = DataDisplay()
+    d.start()
+    NextButtonListener(d)
+    reactor.callWhenRunning(lambda: defer.maybeDeferred(main, d).addErrback(abort_on_crash(d)))
     reactor.run()
