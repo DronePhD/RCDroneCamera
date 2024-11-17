@@ -1,8 +1,8 @@
-import logging
 import threading
 import time
 
 import gpiod
+import logging
 from gpiod.line import Direction, Value
 
 from wfb_client.data_display import DataDisplay
@@ -11,11 +11,12 @@ logger = logging.getLogger("display")
 
 
 class NextButtonListener:
+    CHIP = "/dev/gpiochip3"
     PIN = 16
 
     def __init__(self, display: DataDisplay):
         self.gpio = gpiod.request_lines(
-            "/dev/gpiochip3",
+            self.CHIP,
             consumer="next_button",
             config={
                 self.PIN: gpiod.LineSettings(
@@ -26,12 +27,12 @@ class NextButtonListener:
         self.display = display
         self._thread_active = True
 
-    def start(self):
+    def __enter__(self):
         thread = threading.Thread(target=self._track_push)
         logging.info("Starting the button listener thread")
         thread.start()
 
-    def stop(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self._thread_active = False
         self.gpio.release()
         logging.info("Stopping the button listener thread")

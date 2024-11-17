@@ -55,6 +55,7 @@ logger = logging.getLogger("display")
 
 
 class DisplayController:
+    CHIP = "/dev/gpiochip3"
     RST_PIN_NUM = 15
     DC_PIN_NUM = 17
     SPI_FREQ = 32_000_000  # 32 MHz
@@ -63,7 +64,7 @@ class DisplayController:
         self.spi = spidev.SpiDev(0, 0)
 
         self.gpio = gpiod.request_lines(
-            "/dev/gpiochip3",
+            self.CHIP,
             consumer="oled",
             config={
                 self.DC_PIN_NUM: gpiod.LineSettings(
