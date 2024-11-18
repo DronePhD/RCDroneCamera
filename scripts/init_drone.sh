@@ -69,8 +69,8 @@ EOF
     pip install -r requirements.txt
 
     # copy camera.service to /etc/systemd/system and enable it
-    sudo cp camera.service /etc/systemd/system/
-    sudo cp health_check.service /etc/systemd/system/
+    sudo cp ../services/camera.service /etc/systemd/system/
+    sudo cp ../services/health_check.service /etc/systemd/system/
     sudo systemctl enable camera.service
     sudo systemctl enable health_check.service
     sudo systemctl enable wifibroadcast
@@ -78,8 +78,8 @@ EOF
 fi
 
 # restart the camera service
-sudo cp camera.service /etc/systemd/system/
-sudo cp health_check.service /etc/systemd/system/
+sudo cp ../services/camera.service /etc/systemd/system/
+sudo cp ../services/health_check.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl restart camera
 echo "Restarted camera"

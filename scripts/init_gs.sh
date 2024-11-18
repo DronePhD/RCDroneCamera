@@ -30,14 +30,14 @@ if [ "$install" = true ]; then
     pip install -r gs_requirements.txt
 
     # copy camera.service to /etc/systemd/system and enable it
-    sudo cp display.service /etc/systemd/system/
+    sudo cp ../services/display.service /etc/systemd/system/
     sudo systemctl enable display.service
     sudo systemctl enable wifibroadcast
     sudo systemctl enable wifibroadcast@gs
 fi
 
 # restart the camera service
-sudo cp display.service /etc/systemd/system/
+sudo cp ../services/display.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl restart display
 echo "Restarted display service."

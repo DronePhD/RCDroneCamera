@@ -8,7 +8,7 @@ videos, and stream video.
 Run the following command:
 
 ```bash
-sh deploy_drone.sh -i <true|false>
+./scripts/deploy_gs.sh -i <true|false>
 ```
 
 The `-i` flag is optional. If it is set to `true`, the script will install python and other dependencies. Otherwise, it
@@ -23,7 +23,7 @@ Deployment is possible only from the local network with Raspberry Pi connected t
 Run the following command:
 
 ```bash
-sh deploy_gs.sh -i <true|false>
+./scripts/deploy_gs.sh -i <true|false>
 ```
 It will deploy the ground station on the Radxa Rock 5B board. That includes displaying the video stream stats and
 passing video stream to the connected device.
