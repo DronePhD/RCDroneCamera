@@ -35,8 +35,6 @@ class DisplayAntennaStat(Int32StringReceiver):
         attrs = msgpack.unpackb(string, strict_map_key=False, use_list=False, raw=False)
         if attrs["type"] == "rx" and attrs.get("id") == "video rx":
             self._handle_video_rx(attrs)
-        elif attrs["type"] == "rx" and attrs.get("id") == "mavlink rx":
-            self._handle_mavlink_rx(attrs)
 
     def _handle_video_rx(self, attrs):
         packets = attrs["packets"]
@@ -78,9 +76,6 @@ class DisplayAntennaStat(Int32StringReceiver):
             "flow": flow_data,
             "antenna": antenna_data
         }
-
-    def _handle_mavlink_rx(self, attrs):
-        pass
 
 
 class DisplayAntennaStatsClientFactory(ReconnectingClientFactory):

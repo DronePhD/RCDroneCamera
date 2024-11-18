@@ -51,3 +51,11 @@ def human_packet_loss(data) -> tuple[float, str]:
     if packet_loss < 5:
         return packet_loss, "YELLOW"
     return packet_loss, "RED"
+
+
+def human_temp(temp: float) -> tuple[float, str]:
+    if temp < 70:
+        return temp, "GREEN"
+    if temp < 80:
+        return temp, "YELLOW"
+    return temp, "RED"

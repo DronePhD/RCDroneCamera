@@ -39,6 +39,9 @@ wifi_region = 'BO'     # Your country for CRDA (use BO or GY if you want max tx 
 
 [drone_video]
 peer = 'listen://0.0.0.0:5602'  # listen for video stream (gstreamer on drone)
+
+[drone_mavlink]
+peer = 'listen://0.0.0.0:14550'  # listen for mavlink messages
 EOF
     cat > /etc/modprobe.d/wfb.conf << EOF
 # blacklist stock module

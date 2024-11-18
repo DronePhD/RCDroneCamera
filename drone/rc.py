@@ -3,8 +3,8 @@ from enum import IntEnum
 
 import dronekit
 
-from src import buzzer
-from src.camera import CameraService
+from drone import buzzer
+from drone.camera import CameraService
 
 logger = logging.getLogger("camera")
 

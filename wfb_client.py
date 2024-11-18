@@ -1,12 +1,13 @@
-import logging
 import os
 from datetime import datetime
 
+import logging
 from twisted.internet import reactor, defer
 
 from wfb_client.button import NextButtonListener
 from wfb_client.client_factory import DisplayAntennaStatsClientFactory
 from wfb_client.data_display import DataDisplay
+from wfb_client.mavlink import MAVLink
 
 # Set up logging
 logger = logging.getLogger("display")
@@ -37,6 +38,6 @@ def abort_on_crash(failure, *args, **kwargs):
 
 
 if __name__ == "__main__":
-    with DataDisplay() as d, NextButtonListener(d):
-        reactor.callWhenRunning(lambda: defer.maybeDeferred(main, d).addErrback(abort_on_crash(d)))
+    with DataDisplay() as d, NextButtonListener(d), MAVLink(d):
+        reactor.callWhenRunning(lambda: defer.maybeDeferred(main, d).addErrback(abort_on_crash))
         reactor.run()

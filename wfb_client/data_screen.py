@@ -7,12 +7,12 @@ from PIL import ImageFont, Image, ImageDraw
 from matplotlib import font_manager as fm, pyplot as plt
 
 from wfb_client.display_controller import OLED_WIDTH, OLED_HEIGHT
-from wfb_client.utils import human_rssi, human_snr, human_packet_loss, human_rate
+from wfb_client.utils import human_rssi, human_snr, human_packet_loss, human_rate, human_temp
 
 
 class DataScreen(metaclass=abc.ABCMeta):
     def __init__(self, next_screen: "DataScreen" = None):
-        self._font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/static/SFMonoRegular.otf")
+        self._font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static/SFMonoRegular.otf")
         self.font = ImageFont.truetype(self._font_path, 9)
         self.next_screen = next_screen
 
@@ -48,6 +48,7 @@ class OverviewScreen(DataScreen):
         rssi, rssi_color = human_rssi(rssi_data) if rssi_data else (0, "WHITE")
         snr, snr_color = human_snr(snr_data) if snr_data else (0, "WHITE")
         pl_percent, pl_color = human_packet_loss(packet_data) if packet_data else (0, "WHITE")
+        temp, temp_color = human_temp(data.get("temp", {}).get("temperature")) if data.get("temp") else (0, "WHITE")
 
         image = Image.new("RGB", (OLED_WIDTH, OLED_HEIGHT), 0)  # 0: clear the frame
         draw = ImageDraw.Draw(image)
@@ -80,6 +81,14 @@ class OverviewScreen(DataScreen):
             text=f"Pct loss: {pl_percent:.2f}%",
             font=self.font,
             fill=pl_color,
+            align="left",
+            anchor="la"
+        )
+        draw.text(
+            xy=(0, 36),
+            text=f"Temp: {temp}°C",
+            font=self.font,
+            fill=temp_color,
             align="left",
             anchor="la"
         )
@@ -180,14 +189,14 @@ class TempLogScreen(DataScreen):
         Draw a plot of the temperature log. The plot is a line graph of the temperature values over time.
         """
         if "temp" in data:
-            self._plot_data.append((data["temp"]["value"], data["temp"]["timestamp"]))
+            self._plot_data.append((data["temp"]["temperature"], data["temp"]["timestamp"]))
 
         if not self._plot_data:
             return self._init_screen()
 
-        timestamps = [i for i in range(-60, 0)]  # Reduced step size to make values less spaced
-        # Generate some random data in the range [20, 100]
-        values = np.random.randint(50, 85, len(timestamps))
+        # Recalculate the timestamps to be relative to the latest data point
+        timestamps = [i - self._plot_data[-1][1] for i in [v[1] for v in self._plot_data]]
+        values = np.array([v[0] for v in self._plot_data])
 
         # Plot the data with different colors based on value ranges
         self._ax.clear()

@@ -5,9 +5,9 @@ from datetime import datetime
 
 import click
 
-from src.camera import CameraService
-from src.mavlink_logging import MAVLinkHandler
-from src.rc import RCService
+from drone.camera import CameraService
+from drone.mavlink_logging import MAVLinkHandler
+from drone.rc import RCService
 
 # location of the Pixhawk6c serial port and baud rate for the connection.
 CONNECTION_STRING = "/dev/serial0"

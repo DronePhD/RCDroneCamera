@@ -28,8 +28,12 @@ class DataDisplay:
         return self._data
 
     @data.setter
-    def data(self, value: dict):
-        self._data = value
+    def data(self, input: dict):
+        """
+        Overwrite the data key by key to update all the screens
+        """
+        for key in input:
+            self._data[key] = input[key]
 
     def next_screen(self):
         self.current_screen = next(self.current_screen)
