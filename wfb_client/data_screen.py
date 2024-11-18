@@ -49,6 +49,7 @@ class OverviewScreen(DataScreen):
         snr, snr_color = human_snr(snr_data) if snr_data else (0, "WHITE")
         pl_percent, pl_color = human_packet_loss(packet_data) if packet_data else (0, "WHITE")
         temp, temp_color = human_temp(data.get("temp", {}).get("temperature")) if data.get("temp") else (0, "WHITE")
+        throttled = data.get("temp", {}).get("throttled", False)
 
         image = Image.new("RGB", (OLED_WIDTH, OLED_HEIGHT), 0)  # 0: clear the frame
         draw = ImageDraw.Draw(image)
@@ -91,6 +92,14 @@ class OverviewScreen(DataScreen):
             fill=temp_color,
             align="left",
             anchor="la"
+        )
+        draw.text(
+            xy=(OLED_WIDTH - 1, 36),
+            text="T" if throttled else "",
+            font=self.font,
+            fill="RED",
+            align="right",
+            anchor="ra"
         )
         return image
 
